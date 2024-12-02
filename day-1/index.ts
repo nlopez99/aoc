@@ -62,10 +62,10 @@ const partOne = async () => {
 const partTwo = async () => {
   const { firstArray, secondArray } = await parseFile("./day-1/data.txt")
 
-  const secondArrayfreqMap = Object.groupBy(secondArray, (item) => item)
+  const secondArrayFreqMap = Object.groupBy(secondArray, (item) => item)
 
   const secondArrayElemCounts = Object.fromEntries(
-    Object.entries(secondArrayfreqMap).map(([k, v]) => [k, v?.length ?? 0]),
+    Object.entries(secondArrayFreqMap).map(([k, v]) => [k, v?.length ?? 0]),
   )
 
   let total = 0

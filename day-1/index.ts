@@ -1,89 +1,69 @@
 import * as fs from "node:fs/promises"
 
-async function parseFile(
-  filePath: string,
-): Promise<{
-  firstArray: number[]
-  secondArray: number[]
-}> {
-  const fileContent = await fs.readFile(filePath, "utf-8")
-
-  const firstArray: number[] = []
-  const secondArray: number[] = []
-
-  const lines = fileContent.trim().split("\n")
-
-  lines.forEach((line, index) => {
-    const numbers = line.trim().split(/\s+/)
-
-    if (numbers.length !== 2) {
-      throw new Error(
-        `Invalid format at line ${
-          index + 1
-        }. Expected 2 numbers, got ${numbers.length}`,
-      )
+const input = await fs.readFile("./day-1/data.txt", "utf-8")
+const lines = input
+  .trim()
+  .split("\n")
+  .map((line) => {
+    const nums = line.trim().split(/\s+/).map(Number)
+    if (nums.length !== 2 || isNaN(nums[0]) || isNaN(nums[1])) {
+      console.log('Invalid line:', line, 'parsed as:', nums)
+      throw new Error('Invalid input format')
     }
-
-    const firstNum = parseInt(numbers[0], 10)
-    const secondNum = parseInt(numbers[1], 10)
-
-    if (isNaN(firstNum) || isNaN(secondNum)) {
-      throw new Error(`Invalid number at line ${index + 1}`)
-    }
-
-    firstArray.push(firstNum)
-    secondArray.push(secondNum)
+    return nums
   })
 
-  return {
-    firstArray,
-    secondArray,
-  }
+const maxArrLen = Math.max(...lines.flat())
+
+// init buckets
+const firstBucket = new Array(maxArrLen + 1).fill(0)
+const secondBucket = new Array(maxArrLen + 1).fill(0)
+const secondFreqMap = new Array(maxArrLen + 1).fill(0)
+
+// fill buckets
+for (const [first, second] of lines) {
+  firstBucket[first]++
+  secondBucket[second]++
+  secondFreqMap[second]++
 }
 
-const partOne = async () => {
-  const { firstArray, secondArray } = await parseFile("./day-1/data.txt")
+let partOne = 0
+let firstIndex = 0
+let secondIndex = 0
+let remainingPairs = lines.length
 
-  const sortedFirstArr = firstArray.sort((a, b) => a - b)
-  const sortedSecondArr = secondArray.sort((a, b) => a - b)
-
-  if (sortedFirstArr.length !== sortedSecondArr.length) {
-    throw new Error("Arrays are not the same length")
+while (remainingPairs > 0) {
+  // find next number in first arr
+  while (firstIndex <= maxArrLen && firstBucket[firstIndex] === 0) {
+    firstIndex++
+  }
+  // find nex number in second arr
+  while (secondIndex <= maxArrLen && secondBucket[secondIndex] === 0) {
+    secondIndex++
   }
 
-  let total = 0
-  for (let i = 0; i < sortedFirstArr.length; i++) {
-    total += Math.abs(sortedFirstArr[i] - secondArray[i])
+  // invariant: we have at least one number in each array
+  if (firstIndex > maxArrLen || secondIndex > maxArrLen) {
+    throw new Error('Ran out of numbers before matching all pairs')
   }
 
-  console.log({ partOneAnswer: total })
+  // process the min number of pairs we can make with current numbers
+  const pairs = Math.min(firstBucket[firstIndex], secondBucket[secondIndex])
+  const distance = Math.abs(firstIndex - secondIndex)
+
+  partOne += distance * pairs
+
+  // update buckets
+  firstBucket[firstIndex] -= pairs
+  secondBucket[secondIndex] -= pairs
+  remainingPairs -= pairs
 }
 
-const partTwo = async () => {
-  const { firstArray, secondArray } = await parseFile("./day-1/data.txt")
 
-  const secondArrayFreqMap = Object.groupBy(secondArray, (item) => item)
+const partTwo = lines.reduce((sum, [first]) => {
+  const count = secondFreqMap[first] ?? 0
+  return sum + (first * count)
+}, 0)
 
-  const secondArrayElemCounts = Object.fromEntries(
-    Object.entries(secondArrayFreqMap).map(([k, v]) => [k, v?.length ?? 0]),
-  )
 
-  let total = 0
-
-  for (let i = 0; i < firstArray.length; i++) {
-    const num = firstArray[i]
-
-    if (!num) {
-      throw new Error(`Invalid number at index ${i}`)
-    }
-
-    if (secondArrayElemCounts[num] > 0) {
-      total += num * secondArrayElemCounts[num]
-    }
-  }
-
-  console.log({ partTwoAnswer: total })
-}
-
-await partOne()
-await partTwo()
+console.log({ partOne, partTwo });

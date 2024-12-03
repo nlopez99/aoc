@@ -7,8 +7,8 @@ const lines = input
   .map((line) => {
     const nums = line.trim().split(/\s+/).map(Number)
     if (nums.length !== 2 || isNaN(nums[0]) || isNaN(nums[1])) {
-      console.log('Invalid line:', line, 'parsed as:', nums)
-      throw new Error('Invalid input format')
+      console.log("Invalid line:", line, "parsed as:", nums)
+      throw new Error("Invalid input format")
     }
     return nums
   })
@@ -44,7 +44,7 @@ while (remainingPairs > 0) {
 
   // invariant: we have at least one number in each array
   if (firstIndex > maxArrLen || secondIndex > maxArrLen) {
-    throw new Error('Ran out of numbers before matching all pairs')
+    throw new Error("Ran out of numbers before matching all pairs")
   }
 
   // process the min number of pairs we can make with current numbers
@@ -59,11 +59,9 @@ while (remainingPairs > 0) {
   remainingPairs -= pairs
 }
 
-
 const partTwo = lines.reduce((sum, [first]) => {
   const count = secondFreqMap[first] ?? 0
   return sum + (first * count)
 }, 0)
 
-
-console.log({ partOne, partTwo });
+console.log({ partOne, partTwo })

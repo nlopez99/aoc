@@ -3,7 +3,8 @@
     "day-one": "deno run day-one/index.ts",
     "day-two": "deno run day-two/index.ts",
     "day-three": "deno run day-three/index.ts",
-    "day-four": "deno run day-four/index.ts"
+    "day-four": "deno run day-four/index.ts",
+    "day-five": "deno run day-five/index.ts"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
